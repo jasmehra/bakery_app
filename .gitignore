@@ -1,4 +1,27 @@
-node_modules
-dist
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+coverage/
+
+# Local env
+.env
+.env.*
+!.env.example
+
+# OS / editor
 .DS_Store
+*.swp
+*.swo
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# SQLite
 server/data/*.db
+server/data/*.db-shm
+server/data/*.db-wal
