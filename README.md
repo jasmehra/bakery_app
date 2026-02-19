@@ -1,52 +1,83 @@
 # Golden Crumb Bakery App
 
-A React + Vite bakery website template with responsive UI, online ordering interactions, gallery, and contact flow.
+Full-stack bakery app using React (frontend) + Node.js/Express (backend) + SQLite (database).
 
 ## Working Features
 
-- Responsive bakery landing page with custom styling
-- Sticky navigation bar with section links
-- Hero section with CTA buttons and CDN-hosted images
-- Featured menu section with product cards
-- Online ordering section:
-  - Add/remove item quantity
-  - Live cart count in navbar
-  - Cart summary with line items and total
-  - Cart persistence via `localStorage`
-- Checkout form:
-  - Validation for pickup name, phone, pickup time, and cart presence
-  - Generates an order payload JSON on successful submission
-  - Clear cart button
-- Gallery section:
-  - Image carousel with Prev/Next controls
-- Story section and testimonial section
+- Responsive bakery website UI (hero, menu, story, gallery, testimonials, contact)
+- Multi-component React structure
+- Backend-driven content: featured items, order items, gallery images, testimonials
+- Admin page to edit all website text/content from UI
+- SQLite database auto-created and auto-seeded on backend startup
+- Swagger API docs for testing endpoints
+- Online ordering flow:
+  - Add/remove cart items
+  - Cart persisted in browser `localStorage`
+  - Checkout validation
+  - Checkout submits order to backend API
+  - Orders saved in SQLite (`orders`, `order_items_log`)
 - Contact form:
-  - Validation for name, email, and message length
-  - Success message on valid submit
-- Embedded map (OpenStreetMap iframe) and bakery contact details
-- Scroll reveal animations using `IntersectionObserver`
-- Production build support via Vite
+  - Frontend validation
+  - Submits to backend API
+  - Messages saved in SQLite (`contact_messages`)
+- Scroll reveal animations
 
 ## Tech Stack
 
-- React 18
-- Vite 5
-- Plain CSS (custom theme + responsive design)
+- Frontend: React 18, Vite 5
+- Backend: Node.js, Express 4
+- Database: SQLite (`sqlite3` + `sqlite`)
 
 ## Project Structure
 
 ```text
 bakery-app/
-  index.html
-  package.json
-  vite.config.js
+  server/
+    index.js
+    data/
+      bakery.db          # auto-created
+    db/
+      initDb.js
+      seedData.js
   src/
     main.jsx
     App.jsx
+    apiClient.js
+    components/
+      Header.jsx
+      HeroSection.jsx
+      FeaturedMenuSection.jsx
+      OrderSection.jsx
+      StorySection.jsx
+      GallerySection.jsx
+      TestimonialsSection.jsx
+      ContactSection.jsx
+    utils/
+      cartStorage.js
     styles.css
+  index.html
+  package.json
+  vite.config.js
 ```
 
-## Getting Started
+## API Endpoints
+
+- `GET /api/health`
+- `GET /api-docs` (Swagger UI)
+- `GET /api-docs.json` (OpenAPI spec JSON)
+- `GET /api/content`
+- `GET /api/site-settings`
+- `GET /api/admin/content`
+- `PUT /api/admin/content`
+- `GET /api/featured-items`
+- `GET /api/order-items`
+- `GET /api/gallery-images`
+- `GET /api/testimonials`
+- `GET /api/orders`
+- `POST /api/orders`
+- `POST /api/contact-messages`
+
+## Setup and Run
 
 ### 1. Install dependencies
 
@@ -54,23 +85,36 @@ bakery-app/
 npm install
 ```
 
-### 2. Start development server
+### 2. Run frontend + backend together (recommended)
 
 ```bash
 npm run dev
 ```
 
-This starts the app in development mode with hot reload.
+- Frontend: `http://localhost:5173`
+- Backend API: `http://localhost:4000`
+- Swagger docs: `http://localhost:4000/api-docs`
+- Admin page: `http://localhost:5173/admin`
 
-### 3. Build for production
+### 3. Run only backend
+
+```bash
+npm run dev:server
+```
+
+### 4. Run only frontend
+
+```bash
+npm run dev:client
+```
+
+### 5. Build frontend
 
 ```bash
 npm run build
 ```
 
-Output is generated in the `dist/` folder.
-
-### 4. Preview production build (optional)
+### 6. Preview frontend build
 
 ```bash
 npm run preview
@@ -78,6 +122,6 @@ npm run preview
 
 ## Notes
 
-- Images are loaded from Unsplash CDN URLs.
-- Cart data is saved in browser local storage using key: `golden-crumb-cart-v1`.
-- Checkout currently prepares payload locally (frontend only). You can connect it to a backend API later.
+- Vite proxy is configured so frontend calls to `/api/*` go to backend `http://localhost:4000` in dev.
+- SQLite database file is created at `server/data/bakery.db` automatically.
+- To use another API base URL, set `VITE_API_BASE_URL`.
