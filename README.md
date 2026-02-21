@@ -220,6 +220,39 @@ flutter doctor -v
 
 Fix any issues reported by `flutter doctor` before continuing.
 
+### 1A. Install Xcode on macOS (Detailed)
+
+1. Open the App Store on your Mac.
+2. Search for `Xcode`.
+3. Click `Get` then `Install` (download is large, often 10+ GB).
+4. After install, open Xcode once and accept the license/initial setup prompts.
+5. Install Xcode command-line tools:
+
+```bash
+sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+sudo xcodebuild -runFirstLaunch
+```
+
+6. Verify toolchain from terminal:
+
+```bash
+xcodebuild -version
+flutter doctor -v
+```
+
+7. Confirm `Xcode` section in `flutter doctor` shows no blocking errors.
+
+### 1B. Install iOS Simulator Runtime in Xcode
+
+1. Open Xcode.
+2. Go to `Xcode > Settings > Components` (or `Preferences > Components` on older versions).
+3. Download at least one iOS Simulator runtime (for example, latest iOS version).
+4. Open Simulator:
+
+```bash
+open -a Simulator
+```
+
 ### 2. Start Backend API (required for mobile testing)
 
 From repo root:
@@ -274,14 +307,16 @@ flutter run -d <device-id> --dart-define=API_BASE_URL=http://192.168.1.10:4000/a
 
 #### iOS Simulator
 
-1. Open Simulator from Xcode (or `open -a Simulator`).
-2. Confirm simulator:
+1. Start backend first (`npm run dev:server` in repo root).
+2. Open Simulator from Xcode (or `open -a Simulator`).
+3. In Simulator app, choose a device from `File > Open Simulator` (example: iPhone 15).
+4. Confirm simulator appears to Flutter:
 
 ```bash
 flutter devices
 ```
 
-3. Run app:
+5. Run app:
 
 ```bash
 cd flutter_app
@@ -290,23 +325,46 @@ flutter run -d ios
 
 iOS simulator uses `http://localhost:4000/api` by default in this app.
 
+6. Test hot reload/hot restart:
+   - Press `r` in terminal for hot reload.
+   - Press `R` in terminal for hot restart.
+7. Stop the run with `Ctrl + C`.
+
 #### Physical iPhone
 
 1. Connect iPhone via USB.
-2. In Xcode, sign in with Apple ID and configure signing for `flutter_app/ios/Runner.xcworkspace`.
-3. Trust developer certificate on device if prompted.
-4. Confirm device:
+2. Open iOS project in Xcode:
+
+```bash
+open flutter_app/ios/Runner.xcworkspace
+```
+
+3. In Xcode, select `Runner` project in left sidebar.
+4. Open `Signing & Capabilities` tab.
+5. Set a unique Bundle Identifier (example: `com.yourname.goldencrumb`).
+6. Choose your Apple Team (add account in `Xcode > Settings > Accounts` if needed).
+7. Keep `Automatically manage signing` enabled.
+8. Build once in Xcode (`Product > Build`) to confirm signing is valid.
+9. Return to terminal and confirm device:
 
 ```bash
 flutter devices
 ```
 
-5. Run with LAN API base (same Wi-Fi as computer):
+10. Run with LAN API base (same Wi-Fi as computer):
 
 ```bash
 cd flutter_app
 flutter run -d <device-id> --dart-define=API_BASE_URL=http://192.168.1.10:4000/api
 ```
+
+11. If app install fails on device:
+   - On iPhone, go to `Settings > General > VPN & Device Management` and trust the developer profile.
+   - Re-run `flutter run`.
+12. If network requests fail on device:
+   - Ensure Mac firewall allows Node incoming connections.
+   - Verify phone can access your Mac LAN IP.
+   - Confirm backend still running on port `4000`.
 
 ### 5. Functional Test Checklist (Android/iOS)
 
