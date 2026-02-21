@@ -2,6 +2,8 @@
 
 Full-stack bakery app using React (frontend) + Node.js/Express (backend) + SQLite (database).
 
+This repository now also includes a Flutter client in `flutter_app/` targeting web, iOS, and Android while reusing the same Express + SQLite backend APIs.
+
 ## Working Features
 
 - Responsive bakery website UI (hero, menu, story, gallery, testimonials, contact)
@@ -140,6 +142,209 @@ npm run preview
 
 ```bash
 npm run start
+```
+
+## Flutter Client (Web + iOS + Android)
+
+The Flutter app is in `flutter_app/` and consumes the same endpoints:
+- `GET /api/content`
+- `POST /api/orders`
+- `POST /api/contact-messages`
+- `GET /api/admin/content`
+- `PUT /api/admin/content`
+
+### Run Flutter Web (with backend running)
+
+```bash
+cd flutter_app
+flutter run -d chrome
+```
+
+For web, API defaults to relative `/api` (same-origin/reverse-proxy setup).
+
+### Run Flutter Android Emulator
+
+```bash
+cd flutter_app
+flutter run -d android
+```
+
+Default Android emulator API base is `http://10.0.2.2:4000/api`.
+
+### Run Flutter iOS Simulator
+
+```bash
+cd flutter_app
+flutter run -d ios
+```
+
+Default iOS API base is `http://localhost:4000/api`.
+
+### Override API Base URL (all platforms)
+
+Use `--dart-define` when your backend is not at the default host:
+
+```bash
+flutter run -d chrome --dart-define=API_BASE_URL=http://localhost:4000/api
+flutter run -d ios --dart-define=API_BASE_URL=http://192.168.1.10:4000/api
+flutter run -d android --dart-define=API_BASE_URL=http://192.168.1.10:4000/api
+```
+
+## Detailed Android and iOS Run/Test Guide
+
+This section is for running and testing the Flutter app on emulators/simulators and real devices.
+
+### 1. Prerequisites
+
+1. Install Flutter SDK.
+2. Install Android Studio (Android SDK + emulator tools).
+3. Install Xcode (for iOS simulator/device builds on macOS).
+4. In project root, install Node dependencies:
+
+```bash
+npm install
+```
+
+5. In Flutter app folder, install Dart/Flutter packages:
+
+```bash
+cd flutter_app
+flutter pub get
+```
+
+6. Verify toolchains:
+
+```bash
+flutter doctor -v
+```
+
+Fix any issues reported by `flutter doctor` before continuing.
+
+### 2. Start Backend API (required for mobile testing)
+
+From repo root:
+
+```bash
+npm run dev:server
+```
+
+Keep this terminal running. Backend should be available at `http://localhost:4000`.
+
+### 3. Android Testing
+
+#### Android Emulator
+
+1. Start an emulator in Android Studio (Device Manager) or via CLI.
+2. Confirm device is visible:
+
+```bash
+flutter devices
+```
+
+3. Run app on emulator:
+
+```bash
+cd flutter_app
+flutter run -d android
+```
+
+Android emulator uses `http://10.0.2.2:4000/api` by default in this app.
+
+#### Physical Android Device
+
+1. Enable Developer Options + USB Debugging on device.
+2. Connect device by USB and accept debugging prompt.
+3. Confirm device:
+
+```bash
+flutter devices
+```
+
+4. Find your computer's LAN IP (example `192.168.1.10`) and ensure phone + computer are on same network.
+5. Run with explicit API base:
+
+```bash
+cd flutter_app
+flutter run -d <device-id> --dart-define=API_BASE_URL=http://192.168.1.10:4000/api
+```
+
+6. If connection fails, allow inbound Node traffic in firewall and verify backend is still running.
+
+### 4. iOS Testing
+
+#### iOS Simulator
+
+1. Open Simulator from Xcode (or `open -a Simulator`).
+2. Confirm simulator:
+
+```bash
+flutter devices
+```
+
+3. Run app:
+
+```bash
+cd flutter_app
+flutter run -d ios
+```
+
+iOS simulator uses `http://localhost:4000/api` by default in this app.
+
+#### Physical iPhone
+
+1. Connect iPhone via USB.
+2. In Xcode, sign in with Apple ID and configure signing for `flutter_app/ios/Runner.xcworkspace`.
+3. Trust developer certificate on device if prompted.
+4. Confirm device:
+
+```bash
+flutter devices
+```
+
+5. Run with LAN API base (same Wi-Fi as computer):
+
+```bash
+cd flutter_app
+flutter run -d <device-id> --dart-define=API_BASE_URL=http://192.168.1.10:4000/api
+```
+
+### 5. Functional Test Checklist (Android/iOS)
+
+After app launches, verify:
+
+1. Home content loads (hero/menu/gallery/testimonials/contact text).
+2. Add/remove cart items works.
+3. Place order works and returns success message.
+4. Contact form submits successfully.
+5. Open admin mode, edit content, save, then return to customer view and refresh.
+
+You can inspect backend writes using:
+
+```bash
+curl http://localhost:4000/api/orders
+```
+
+And Swagger at:
+
+```text
+http://localhost:4000/api-docs
+```
+
+### 6. Automated Flutter Checks
+
+Run static analysis and tests:
+
+```bash
+cd flutter_app
+flutter analyze
+flutter test
+```
+
+Optional release build checks:
+
+```bash
+flutter build apk
+flutter build ios --no-codesign
 ```
 
 ## Notes
