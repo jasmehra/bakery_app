@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 
 import 'app_shell.dart';
 import 'services/api_client.dart';
@@ -17,6 +18,16 @@ class BakeryApp extends StatelessWidget {
 
     return MaterialApp(
       title: 'Golden Crumb Bakery',
+      scrollBehavior: const MaterialScrollBehavior().copyWith(
+        dragDevices: {
+          PointerDeviceKind.touch,
+          PointerDeviceKind.mouse,
+          PointerDeviceKind.stylus,
+          PointerDeviceKind.invertedStylus,
+          PointerDeviceKind.trackpad,
+          PointerDeviceKind.unknown,
+        },
+      ),
       theme: ThemeData(
         colorScheme: colors,
         scaffoldBackgroundColor: const Color(0xFFFFFBF7),

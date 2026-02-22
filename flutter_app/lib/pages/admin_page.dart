@@ -102,6 +102,8 @@ class _AdminPageState extends State<AdminPage> {
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
+        physics: const AlwaysScrollableScrollPhysics(),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         children: [
           Wrap(
             spacing: 12,

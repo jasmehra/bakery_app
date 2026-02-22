@@ -318,6 +318,8 @@ class _CustomerPageState extends State<CustomerPage> {
           onRefresh: _loadContent,
           child: ListView(
             padding: const EdgeInsets.all(16),
+            physics: const AlwaysScrollableScrollPhysics(),
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             children: [
               Card(
                 elevation: 0,
