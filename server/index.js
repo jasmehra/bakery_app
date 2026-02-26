@@ -196,6 +196,6 @@ app.use((error, _req, res, _next) => {
   res.status(500).json({ error: "Internal server error" });
 });
 
-app.listen(PORT, () => {
-  console.log(`Bakery API running at http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Bakery API running at http://0.0.0.0:${PORT}`);
 });

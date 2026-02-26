@@ -261,7 +261,7 @@ From repo root:
 npm run dev:server
 ```
 
-Keep this terminal running. Backend should be available at `http://localhost:4000`.
+Keep this terminal running. Backend should be available at `http://localhost:4000` on your Mac.
 
 ### 3. Android Testing
 
@@ -330,41 +330,170 @@ iOS simulator uses `http://localhost:4000/api` by default in this app.
    - Press `R` in terminal for hot restart.
 7. Stop the run with `Ctrl + C`.
 
+#### Test iOS App Directly from Xcode (Detailed)
+
+Use this flow when you want native iOS debugging, device logs, breakpoints, and signing visibility.
+
+1. Generate iOS Flutter config files (once per dependency change):
+
+```bash
+cd flutter_app
+flutter pub get
+```
+
+2. Open the iOS workspace (not `.xcodeproj`):
+
+```bash
+open ios/Runner.xcworkspace
+```
+
+3. In Xcode left sidebar, select the `Runner` project.
+4. Under `Targets > Runner > Signing & Capabilities`:
+   - enable `Automatically manage signing`
+   - choose your Apple Team
+   - ensure Bundle Identifier is unique
+5. Select build destination from top toolbar:
+   - simulator (for local testing), or
+   - connected iPhone (for real-device testing)
+6. Configure run scheme if needed:
+   - top menu `Product > Scheme > Edit Scheme`
+   - keep Build Configuration as `Debug` for testing
+7. Run app from Xcode:
+   - click Run button (triangle), or
+   - press `Cmd + R`
+8. View logs in Xcode debug console:
+   - `View > Debug Area > Activate Console`
+9. Stop app:
+   - click Stop button, or
+   - press `Cmd + .`
+
+##### Useful Xcode Testing Tools
+
+1. View device/simulator logs:
+   - `Window > Devices and Simulators`
+   - select device > `Open Console`
+2. Inspect network/API errors:
+   - check Flutter logs in debug console
+   - verify backend is reachable from device IP
+3. Debug UI/thread issues:
+   - `Debug Navigator` (left panel) for CPU/memory
+4. Clean build if Xcode behaves inconsistently:
+   - `Product > Clean Build Folder` (`Shift + Cmd + K`)
+   - then run again
+
+##### Common Xcode iOS Failures and Fixes
+
+1. `No signing certificate` / provisioning errors:
+   - re-select Apple Team in `Signing & Capabilities`
+   - use a unique Bundle Identifier
+2. `Module not found` or CocoaPods issues:
+
+```bash
+cd flutter_app
+flutter clean
+flutter pub get
+cd ios
+pod install
+cd ..
+```
+
+3. App launches but API calls fail on physical iPhone:
+   - run backend on Mac: `npm run dev:server`
+   - use LAN API base:
+
+```bash
+flutter run -d <device-id> --dart-define=API_BASE_URL=http://192.168.1.10:4000/api
+```
+   - allow Local Network access on the iPhone when prompted
+   - confirm Mac + iPhone are on the same network (Wi-Fi or hotspot)
+
+4. Device does not appear in Xcode:
+   - trust computer on iPhone
+   - use a data-capable cable
+   - update iOS support files by updating Xcode
+
 #### Physical iPhone
 
-1. Connect iPhone via USB.
-2. Open iOS project in Xcode:
+Use this section if you want to test on your own iPhone end-to-end.
+
+1. Connect your iPhone to your Mac with a data-capable cable.
+2. Unlock iPhone and tap `Trust This Computer` if prompted.
+3. On iPhone (iOS 16+), enable Developer Mode:
+   - `Settings > Privacy & Security > Developer Mode`
+   - turn it on and restart phone
+4. On Mac, open iOS workspace:
 
 ```bash
 open flutter_app/ios/Runner.xcworkspace
 ```
 
-3. In Xcode, select `Runner` project in left sidebar.
-4. Open `Signing & Capabilities` tab.
-5. Set a unique Bundle Identifier (example: `com.yourname.goldencrumb`).
-6. Choose your Apple Team (add account in `Xcode > Settings > Accounts` if needed).
-7. Keep `Automatically manage signing` enabled.
-8. Build once in Xcode (`Product > Build`) to confirm signing is valid.
-9. Return to terminal and confirm device:
+5. In Xcode, select `Runner` project in left sidebar.
+6. Open `Targets > Runner > Signing & Capabilities`.
+7. Set a unique Bundle Identifier, for example:
+   - `com.yourname.goldencrumb`
+8. Choose your Apple Team:
+   - if missing, add account in `Xcode > Settings > Accounts`
+9. Keep `Automatically manage signing` enabled.
+10. In Xcode toolbar, select your connected iPhone as Run destination.
+11. Run once from Xcode (`Cmd + R`) to complete first-time signing/install.
+12. If phone asks to trust the developer profile:
+   - open `Settings > General > VPN & Device Management`
+   - trust your developer app profile
+13. Keep backend running on Mac:
+
+```bash
+npm run dev:server
+```
+
+14. In a new terminal, confirm Flutter sees your iPhone:
 
 ```bash
 flutter devices
 ```
 
-10. Run with LAN API base (same Wi-Fi as computer):
+15. Find your Mac LAN IP and ensure Mac + iPhone are on same network:
+   - On Wi-Fi, the IP usually looks like `192.168.x.x`.
+   - On iPhone hotspot, the IP usually looks like `172.20.10.x`.
+   - Find it with `ipconfig getifaddr en0` (or `networksetup -getinfo Wi-Fi`).
+16. Run Flutter app on your iPhone with LAN API base:
 
 ```bash
 cd flutter_app
 flutter run -d <device-id> --dart-define=API_BASE_URL=http://192.168.1.10:4000/api
 ```
 
-11. If app install fails on device:
-   - On iPhone, go to `Settings > General > VPN & Device Management` and trust the developer profile.
-   - Re-run `flutter run`.
-12. If network requests fail on device:
+17. On first launch, allow the Local Network prompt (required for iPhone to reach the Mac backend).
+18. Validate app behavior on device:
+   - scroll through customer page sections
+   - add/remove cart items
+   - place a test order
+   - send a contact message
+   - open admin mode and save content updates
+19. If app install fails:
+   - re-check signing Team + Bundle Identifier in Xcode
+   - confirm Developer Mode is enabled
+   - re-run once from Xcode, then re-run from Flutter
+20. If app opens but API calls fail:
    - Ensure Mac firewall allows Node incoming connections.
-   - Verify phone can access your Mac LAN IP.
+   - Verify iPhone can reach `http://<mac-lan-ip>:4000/api/health` on same Wi-Fi.
    - Confirm backend still running on port `4000`.
+21. For day-to-day retesting after first setup, you usually only need:
+   - `npm run dev:server`
+   - `flutter run -d <device-id> --dart-define=API_BASE_URL=http://<mac-lan-ip>:4000/api`
+
+##### iPhone Networking Notes (Beginner)
+
+1. `localhost` on iPhone points to the phone itself. Use your Mac LAN IP instead.
+2. iOS requires Local Network permission and HTTP allowance for local dev:
+   - Ensure `NSLocalNetworkUsageDescription` and `NSAppTransportSecurity` are present in `ios/Runner/Info.plist`.
+3. If you edit `Info.plist`, do a clean rebuild:
+
+```bash
+cd flutter_app
+flutter clean
+flutter pub get
+flutter run -d <device-id> --dart-define=API_BASE_URL=http://<mac-lan-ip>:4000/api
+```
 
 ### 5. Functional Test Checklist (Android/iOS)
 
